@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {%- auth0:head -%}
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      main {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      async function getOrganizations() {
+        const clientID = "VJL0d1YSnsdQUemGB122zJXTUbK9cKPr";
+        const clientSecret =
+          "-L0JkStflXrzqyXsUf5FOE3s1l9geWgMhL-jBouexmYKlTdHRlUuzEkqziUhQfWt";
+        var settings4ClientCreds = {
+          async: true,
+          crossDomain: true,
+          url: "https://auth.kinamod.com/oauth/token",
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          data: `{"client_id":"${clientID}","client_secret":"${clientSecret}","audience":"https://dsjtenant.eu.auth0.com/api/v2/","grant_type":"client_credentials"}`,
+        };
+
+        $.ajax(settings4ClientCreds).then(function (res) {
+          console.log(res.access_token);
+
+          var settings = {
+            url: "https://auth.kinamod.com/api/v2/organizations",
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${res.access_token}`,
+            },
+          };
+          $.ajax(settings).then(function (response) {
+            $.each(response, function (key, value) {
+              //For example
+              console.log(key + value.id);
+              console.log("randomt term - " + key + value.display_name);
+              $("select#organizationName").append(
+                new Option(value.display_name, value.name)
+              );
+            });
+          });
+        });
+      }
+      $(document).ready(function () {
+        $("input#organizationName").replaceWith(function () {
+          return $(
+            '<select name="organizationName" id="organizationName" class="input"/>'
+          );
+        });
+        getOrganizations();
+
+        //$("select#organizationName").nextAll("div").first().remove();
+      });
+    </script>
+    {%- auth0:widget -%}
+  </body>
+</html>
